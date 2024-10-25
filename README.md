@@ -1,5 +1,10 @@
 # CS 6601: Artificial Intelligence - Assignment 4 - Decision Trees and Multiclass-Classification
 
+# My Notes
+This assignment includes implementation of vectorization techniques, a decision tree, and a random forest model.
+# File Structure
+- `submission.py`: All code included here
+
 ## Setup
 Clone this repository:
 
