@@ -80,10 +80,25 @@ def build_decision_tree():
     Returns:
         The root node of the decision tree.
     """
-    dt_root = None
-    # TODO: finish this.͏︅͏︀͏︋͏︋͏󠄌͏󠄎͏︀͏󠄋͏︊͏󠄏
-    raise NotImplemented()
-    return dt_root
+    
+    # Functions for determining which move to make at each node
+    func0 = lambda feature: feature[0] <= 0.06
+    func1 = lambda feature: feature[1] <= -1.7
+    func2 = lambda feature: feature[2] <= -0.7
+
+    # Define the nodes
+    dt_node2 = DecisionNode(None, None, func2, None)
+    dt_node1 = DecisionNode(None, dt_node2, func1, None)
+    dt_node0 = DecisionNode(None, dt_node1, func0, None)
+
+    # Define the decisions at each node
+    dt_node0.left = DecisionNode(None, None, None, class_label=0)
+    dt_node1.left = DecisionNode(None, None, None, class_label=0)
+    dt_node2.left = DecisionNode(None, None, None, class_label=2)
+    dt_node2.right = DecisionNode(None, None, None, class_label=1)
+
+    # Return the root of the tree
+    return dt_node0
 
 
 def confusion_matrix(true_labels, classifier_output, n_classes=2):
@@ -115,9 +130,14 @@ def confusion_matrix(true_labels, classifier_output, n_classes=2):
     Returns:
         A two dimensional array representing the confusion matrix.
     """
-    c_matrix = None
-    # TODO: finish this.͏︅͏︀͏︋͏︋͏󠄌͏󠄎͏︀͏󠄋͏︊͏󠄏
-    raise NotImplemented()
+    
+    # Define the confusion matrix
+    c_matrix = np.zeros((n_classes,n_classes))
+
+    # Compare each input's actual label to its predicted label and input to appropriate location in confusion matrix
+    for idx in range(len(true_labels)):
+        c_matrix[true_labels[idx], classifier_output[idx]] += 1
+    
     return c_matrix
 
 
@@ -137,8 +157,38 @@ def precision(true_labels, classifier_output, n_classes=2, pe_matrix=None):
         So if the classifier is (0,1,2,...,n), the output should be in the below format: 
         [precision (0), precision(1), precision(2), ... precision(n)].
     """
-    # TODO: finish this.͏︅͏︀͏︋͏︋͏󠄌͏󠄎͏︀͏󠄋͏︊͏󠄏
-    raise NotImplemented()
+    
+    # Regular method:
+    
+    # Define matrices for counting correct classifications and total number of classifications, the two factors in precision
+    correct_matrix = np.zeros((1,n_classes))
+    count_matrix = np.zeros((1,n_classes))
+    
+    # Compare each classification with the true label and get precision
+    for idx in range(len(true_labels)):
+        true_label = true_labels[idx]
+        classification = classifier_output[idx]
+        
+        # Increase count of correct amount for this label
+        if true_label == classification:
+            correct_matrix[0,true_label] += 1
+
+        # Increase count of this label            
+        count_matrix[0,classification] += 1
+        
+    precision_matrix = correct_matrix / count_matrix
+    
+    return precision_matrix[0]
+
+    # Another method with numpy, not faster
+    
+    # true_labels = np.array(true_labels)
+    # classifier_output = np.array(classifier_output)
+
+    # count_matrix = np.bincount(classifier_output, minlength=n_classes)
+    # correct_matrix = np.bincount(true_labels[classifier_output==true_labels], minlength=n_classes)
+
+    # return correct_matrix / count_matrix
 
 
 def recall(true_labels, classifier_output, n_classes=2, pe_matrix=None):
@@ -157,9 +207,26 @@ def recall(true_labels, classifier_output, n_classes=2, pe_matrix=None):
         So if the classifier is (0,1,2,...,n), the output should be in the below format: 
         [recall (0), recall (1), recall (2), ... recall (n)].
     """
-    # TODO: finish this.͏︅͏︀͏︋͏︋͏󠄌͏󠄎͏︀͏󠄋͏︊͏󠄏
-    raise NotImplemented()
-
+    
+    # Define matrices for counting correct classifications and total number of classifications, the two factors in precision
+    correct_matrix = np.zeros((1,n_classes))
+    count_matrix = np.zeros((1,n_classes))
+    
+    # Compare each classification with the true label and get precision
+    for idx in range(len(true_labels)):
+        true_label = true_labels[idx]
+        classification = classifier_output[idx]
+        
+        # Increase count of correct amount for this label
+        if true_label == classification:
+            correct_matrix[0,true_label] += 1
+        
+        # Increase count of this label
+        count_matrix[0,true_label] += 1
+        
+    recall_matrix = correct_matrix / count_matrix
+    
+    return recall_matrix[0]
 
 def accuracy(true_labels, classifier_output, n_classes=2, pe_matrix=None):
     """Get the accuracy of a classifier compared to the correct values.
@@ -175,8 +242,15 @@ def accuracy(true_labels, classifier_output, n_classes=2, pe_matrix=None):
     Returns:
         The accuracy of the classifier output.
     """
-    # TODO: finish this.͏︅͏︀͏︋͏︋͏󠄌͏󠄎͏︀͏󠄋͏︊͏󠄏
-    raise NotImplemented()
+    
+    # Convert to numpy
+    true_labels = np.array(true_labels)
+    classifier_output = np.array(classifier_output)   
+
+    # Count correct labels
+    num_correct = sum(true_labels == classifier_output)
+    
+    return num_correct/(len(classifier_output))
 
 
 def gini_impurity(class_vector):
@@ -192,10 +266,21 @@ def gini_impurity(class_vector):
     Returns:
         Floating point number representing the gini impurity.
     """
-    # TODO: finish this.͏︅͏︀͏︋͏︋͏󠄌͏󠄎͏︀͏󠄋͏︊͏󠄏
-    raise NotImplemented()
+    
+    gini = 0
+    
+    # Convert class vector to np array
+    classes_list = np.unique(class_vector)
+    
+    # for each class, find the percentage it appears in the class_vector
+    for clss in classes_list:
+        
+        # This is part of the gini impurity calculation
+        gini += (sum(class_vector == clss)/len(class_vector))**2
 
-
+    # The rest of the calculation
+    return 1 - gini
+    
 def gini_gain(previous_classes, current_classes):
     """Compute the gini impurity gain between the previous and current classes.
     Args:
@@ -205,8 +290,18 @@ def gini_gain(previous_classes, current_classes):
     Returns:
         Floating point number representing the gini gain.
     """
-    # TODO: finish this.͏︅͏︀͏︋͏︋͏󠄌͏󠄎͏︀͏󠄋͏︊͏󠄏
-    raise NotImplemented()
+    
+    gini_imp_parent = gini_impurity(previous_classes)
+    avg_gini_imp_children = 0
+    total_samples = len(previous_classes);
+    
+    # Iterate through children, adding their affect to the gini gain
+    for child in current_classes:
+        child_weight = len(child) / total_samples
+        avg_gini_imp_children += child_weight * gini_impurity(child)
+    
+    # Return gain calc
+    return gini_imp_parent-avg_gini_imp_children
 
 
 class DecisionTree:
@@ -240,8 +335,55 @@ class DecisionTree:
         Returns:
             Root node of decision tree.
         """
-        # TODO: finish this.͏︅͏︀͏︋͏︋͏󠄌͏󠄎͏︀͏󠄋͏︊͏󠄏
-        raise NotImplemented()
+        
+        # If there is one class left, we have reached a leaf
+        if len(np.unique(classes)) == 1:
+            return DecisionNode(None, None, None, class_label=classes[0])
+            
+        # If we have reached the max depth
+        if depth >= self.depth_limit:
+            chosen_class = np.argmax(np.bincount(classes.astype(int)))
+            return DecisionNode(None, None, None, class_label=chosen_class)
+            
+        # Initialize the best gini gain so we can choose the best one later    
+        gini_gain_best = -float('inf')
+        
+        # Calculate the Gini gain for each feature to choose which feature to split on
+        for feature_idx in range(features.shape[1]):
+            feature = features[:,feature_idx]
+            
+            # Test n cutoff values for this feature
+            max_data = np.max(feature)
+            min_data = np.min(feature)
+            num_cutoff_tests = 3
+            
+            for cutoff in np.linspace(min_data, max_data, num_cutoff_tests):
+                
+                # Define test on decision boundary cutoff. True assigned as <= cutoff
+                true_idx = feature <= cutoff
+                false_idx = feature > cutoff
+                true = classes[true_idx]
+                false = classes[false_idx]
+
+                # Get gini gain based former classes and new classes from decision boundary
+                gini_gain_val = gini_gain(previous_classes=classes, current_classes=[true,false])
+                
+                # Store info if gini gain is better
+                if gini_gain_val > gini_gain_best:
+                    gini_gain_best = gini_gain_val
+                    cutoff_best = cutoff
+                    feature_best = feature_idx
+                    true_idx_best = true_idx
+                    false_idx_best = false_idx
+    
+        # We have now chosen a best feature and cutoff value. Assign children based on the chosen feature to split on with true going left and false going right
+        left_child = self.__build_tree__(features[true_idx_best],classes[true_idx_best],depth+1)
+        right_child = self.__build_tree__(features[false_idx_best],classes[false_idx_best],depth+1)
+
+        # Assign children to parent node with their corresponding cuttoff
+        func = lambda x: x[feature_best] <= cutoff_best
+        return DecisionNode(left_child, right_child, func, class_label=None)
+
 
     def classify(self, features):
         """Use the fitted tree to classify a list of example features.
@@ -251,8 +393,11 @@ class DecisionTree:
             A list of class labels.
         """
         class_labels = []
-        # TODO: finish this.͏︅͏︀͏︋͏︋͏󠄌͏󠄎͏︀͏󠄋͏︊͏󠄏
-        raise NotImplemented()
+        
+        # Put each input through the fitted tree to get its output
+        for feature in features:
+            class_labels.append(self.root.decide(feature))
+        
         return class_labels
 
 
@@ -270,8 +415,33 @@ def generate_k_folds(dataset, k):
         => Each Set is a tuple of numpy arrays.
     """
     folds = []
-    # TODO: finish this.͏︅͏︀͏︋͏︋͏󠄌͏󠄎͏︀͏󠄋͏︊͏󠄏
-    raise NotImplemented()
+    
+    # Separate the features and the labels from the dataset tuple
+    features = dataset[0]
+    labels = dataset[1]
+    
+    # Suffle data
+    rand_indices = np.random.permutation(features.shape[0]) # Generate random indices of the size of the data
+    shuffled_features = features[rand_indices]
+    shuffled_labels = labels[rand_indices]
+    
+    # Size of folds to get
+    fold_size = int(len(shuffled_features)/k)
+    
+    # Create test set from each fold of the data. The rest of the data is the training set. Iterate until all combinations are accounted for
+    for fold in range(k):
+        
+        # Create indices for masking test and training sets from the data
+        test_set_idx = np.linspace(fold*fold_size,(fold+1)*fold_size-1,fold_size).astype(int)
+        training_set_idx = np.setdiff1d(np.arange(len(shuffled_features)), test_set_idx)
+        
+        test_set_features = shuffled_features[test_set_idx]
+        training_set_features = shuffled_features[training_set_idx]
+        test_set_labels = shuffled_labels[test_set_idx]
+        training_set_labels = shuffled_labels[training_set_idx]
+        
+        folds.append(((training_set_features, training_set_labels),(test_set_features, test_set_labels)))
+            
     return folds
 
 
@@ -288,6 +458,7 @@ class RandomForest:
              attr_subsample_rate (float): percentage of attribute samples.
         """
         self.trees = []
+        self.num_classes = 0
         self.num_trees = num_trees
         self.depth_limit = depth_limit
         self.example_subsample_rate = example_subsample_rate
@@ -298,20 +469,55 @@ class RandomForest:
             features (m x n): m examples with n features.
             classes (m x 1): Array of Classes.
         """
-        # TODO: finish this.͏︅͏︀͏︋͏︋͏󠄌͏󠄎͏︀͏󠄋͏︊͏󠄏
-        raise NotImplemented()
+        # Get number of classes
+        self.num_classes = len(np.unique(classes))
+        
+        # Get the number of features and attributes to work with given the sampling rate (critical part of random forest = not using all the data in each tree)
+        num_features = int(features.shape[0]*self.example_subsample_rate)
+        num_attributes = int(features.shape[1]*self.attr_subsample_rate)
+        
+        # Create all the trees
+        for _ in range(self.num_trees):
+            start = time.time()
+            # Select the random features and attributes to use for this tree
+            rand_features_idx = np.random.choice(features.shape[0],num_features,replace=True)
+            rand_attributes_idx = np.random.choice(features.shape[1],num_attributes,replace=False)
+    
+            rand_features = features[rand_features_idx]
+            rand_features = rand_features[:,rand_attributes_idx]
+            rand_classes = classes[rand_features_idx]
+        
+            # Build the tree and store the chosen attributes for later testing
+            d_tree = DecisionTree(self.depth_limit)
+            d_tree.fit(rand_features, rand_classes)
+            d_tree.attr_indices = rand_attributes_idx
+            
+            self.trees.append(d_tree)     
+            end = time.time()
+            print(end-start)       
 
     def classify(self, features):
-            """Classify a list of features based on the trained random forest.
-            Args:
-                features (m x n): m examples with n features.
-            Returns:
-                votes (list(int)): m votes for each element
-            """
-            votes = []
-            # TODO: finish this.͏︅͏︀͏︋͏︋͏󠄌͏󠄎͏︀͏󠄋͏︊͏󠄏
-            raise NotImplemented()
-            return votes
+        """Classify a list of features based on the trained random forest.
+        Args:
+            features (m x n): m examples with n features.
+        Returns:
+            votes (list(int)): m votes for each element
+        """
+        
+        votes = []
+        
+        # Put each input through each tree to get its output, but only classify each on its randomly chosen attributes
+        for tree in self.trees:
+            tree_features = features[:,tree.attr_indices]
+            votes.append(tree.classify(tree_features))
+            
+        # Take votes from each tree for final vote list
+        votes = np.array(votes).astype(int)
+        
+        # find the max voted for class for each data point
+        result = np.apply_along_axis(lambda x: np.bincount(x).argmax(),axis=0, arr=votes)
+        
+        return result # return a list of votes
 
 
 class ChallengeClassifier:
@@ -389,9 +595,10 @@ class Vectorization:
         Returns:
             Numpy array of data.
         """
-        # TODO: finish this.͏︅͏︀͏︋͏︋͏󠄌͏󠄎͏︀͏󠄋͏︊͏󠄏
-        raise NotImplemented()
-        return vectorized
+        
+        mult = np.multiply(data, data)
+        
+        return mult + data
 
     def non_vectorized_slice(self, data):
         """Find row with max sum using loops.
@@ -424,8 +631,13 @@ class Vectorization:
         Returns:
             Tuple (Max row sum, index of row with max sum)
         """
-        # TODO: finish this.͏︅͏︀͏︋͏︋͏󠄌͏󠄎͏︀͏󠄋͏︊͏󠄏
-        raise NotImplemented()
+        modified_data = np.sum(data[:100],axis=1)
+        
+        maximum = np.max(modified_data)
+        
+        idx = np.argmax(modified_data)
+        
+        return (maximum, idx)
 
     def non_vectorized_flatten(self, data):
         """Display occurrences of positive numbers using loops.
@@ -458,8 +670,10 @@ class Vectorization:
         Returns:
             Dictionary [(integer, number of occurrences), ...]
         """
-        # TODO: finish this.͏︅͏︀͏︋͏︋͏󠄌͏󠄎͏︀͏󠄋͏︊͏󠄏
-        raise NotImplemented()
+        flattened = data.flatten()
+        unique, counts = np.unique(flattened[flattened>0], return_counts=True)
+        return dict(zip(unique, counts)).items()
+
 
     def non_vectorized_glue(self, data, vector, dimension='c'):
         """Element wise array arithmetic with loops.
@@ -498,8 +712,13 @@ class Vectorization:
         Returns:
             Numpy array of data.
         """
-        vectorized = None
-        raise NotImplemented()
+        if dimension == 'c':
+            vector = vector.reshape(-1,1)
+            axis = 1
+        else:
+            vector = vector.reshape(1,-1)
+            axis = 0
+        vectorized = np.concatenate((data,vector),axis=axis)
         return vectorized
 
     def non_vectorized_mask(self, data, threshold):
@@ -535,13 +754,11 @@ class Vectorization:
         Returns:
             Numpy array of data.
         """
-        vectorized = None
-        raise NotImplemented()
+        vectorized = data.copy()
+        vectorized[data < threshold] = data[data < threshold]**2
         return vectorized
 
 
 def return_your_name():
     # return your name͏︅͏︀͏︋͏︋͏󠄌͏󠄎͏︀͏󠄋͏︊͏󠄏
-    # TODO: finish this͏︅͏︀͏︋͏︋͏󠄌͏󠄎͏︀͏󠄋͏︊͏󠄏
-    raise NotImplemented()
-    return ''
+    return 'Jacob Blevins'

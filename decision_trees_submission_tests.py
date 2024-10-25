@@ -519,6 +519,7 @@ class VectorizationWarmUpTests(unittest.TestCase):
         start_time = time.time() * 1000
         self.vector.vectorized_slice(self.data)
         end_time = time.time() * 1000
+        print(end_time - start_time)
 
         assert (end_time - start_time) <= 0.1
 
