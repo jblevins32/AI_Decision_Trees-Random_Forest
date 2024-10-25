@@ -2,7 +2,8 @@
 
 # My Notes
 This assignment includes implementation of vectorization techniques, a decision tree, and a random forest model.
-# File Structure
+
+File Structure
 - `submission.py`: All code included here
 
 ## Setup
